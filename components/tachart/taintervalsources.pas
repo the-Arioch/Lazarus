@@ -226,12 +226,16 @@ begin
         Result := AValue + FStepLen
       else
         Result := IncYear(AValue, Round(FBestStepCoeff));
+    dtsQuarter: 
+      Result := IncQuarter(AValue, Round(FStepLen/DATE_STEP_INTERVALS[dtsQuarter]));
     dtsMonth: Result := IncMonth(AValue, Round(FBestStepCoeff));
     otherwise Result := AValue + FStepLen;
   end;
 end;
 
 function TDateTimeIntervalsHelper.StartValue(AValue: TDateTime): TDateTime;
+var
+  d, m, y: Word;
 begin
   Result := Int(AValue / FStepLen - 1) * FStepLen;
   case FBestStep of
@@ -239,6 +243,17 @@ begin
       // DateTime arithmetics fails on large year numbers.
       if FBestStepCoeff <= 10 then
         Result := StartOfTheYear(AValue);
+    dtsQuarter: 
+      begin
+        Result := StartOfTheQuarter(AValue);
+        // Make sure that first mark is at start of year.
+        if round(FStepLen/DATE_STEP_INTERVALS[dtsQuarter]) = 2 then
+        begin
+          DecodeDate(Result, y,m,d);
+          if m < 7 then m := 1 else m := 7;
+          Result := EncodeDate(y, m, 1);
+        end;
+      end;
     dtsMonth: Result := StartOfTheMonth(AValue);
     else ;
   end;
@@ -616,7 +631,7 @@ var
       dtsYear:
         Result := FormatDateTime(DateTimeStepFormat.YearFormat, AValue);
       dtsQuarter:
-        Result := IntToRoman(Floor(AValue / helper.FStepLen) mod 4 + 1) + '/' +
+        Result := IntToRoman((MonthOf(AValue)-1) div 3 + 1) + '/' +
           FormatDateTime(DateTimeStepFormat.YearFormat, AValue);
       dtsMonth:
         if FSuppressPrevUnit and (st.Year = prevSt.Year) then
