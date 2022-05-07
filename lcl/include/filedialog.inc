@@ -233,6 +233,18 @@ begin
   FFileName := Value;  // make sure this is defined first before the CNSendMessage
 end;
 
+
+function PromptForFileName(var AFileName: string; const AFilter: string = ''; const ADefaultExt: string = '';
+   const ATitle: string = ''; const AInitialDir: string = ''; const SaveDialog: Boolean = False): Boolean;
+var dlg: class of TOpenDialog;
+begin
+  if SaveDialog
+     then dlg := TSaveDialog
+     else dlg := TOpenDialog;
+  Result := dlg.PromptForFileName(AFileName, AFilter, ADefaultExt, ATitle, AInitialDir);
+end;
+
+
 {******************************************************************************
                                   TOpenDialog
  ******************************************************************************}
@@ -429,6 +441,11 @@ begin
   Result:= rsfdOpenFile;
 end;
 
+class function TOpenDialog.DefaultPromptOptions: TOpenOptions;
+begin
+  Result := [ofFileMustExist, ofReadOnly, ofEnableIncludeNotify];
+end;
+
 {------------------------------------------------------------------------------
   Method: TOpenDialog.Create
   Params:  AOwner: the owner of the class
@@ -479,7 +496,90 @@ begin
     Exclude(FOptions, AOption);
 end;
 
+class function TOpenDialog.PromptForFileName(var AFileName: string;
+  const AFilter: string; const ADefaultExt: string; const ATitle: string;
+  const AInitialDir: string): Boolean;
+var dlg: TOpenDialog;
+    NormExt, FExt, FDir, FName: string;
 
+    masks: TStringDynArray; m: string; i, mi: integer;
+begin
+  FDir := ExtractFileDir(AFileName);
+  FName := ExtractFileName(AFileName);
+  FExt := ExtractFileExt(FName);
+
+  dlg := Self.Create(Application);
+  try
+    dlg.Options := dlg.Options + dlg.DefaultPromptOptions();
+
+    if ATitle > ''
+       then dlg.Title := ATitle
+       else dlg.Title := dlg.DefaultTitle;
+    if AInitialDir > ''
+       then dlg.InitialDir := AInitialDir
+       else dlg.InitialDir := FDir;
+    if ADefaultExt > '' then begin
+       NormExt := ADefaultExt;
+// https://docwiki.embarcadero.com/Libraries/Sydney/en/Vcl.Dialogs.TOpenDialog.DefaultExt
+//   in Delphi this should LACK the dot, and that is annoying and inconsistent
+//   LCL makes having the dot the norm, but is permissive of lackinf it for compatibility.
+       if NormExt[1] <> '.' then
+          NormExt := '.' + NormExt;
+       dlg.DefaultExt := NormExt;
+    end;
+    if FName > '' then begin
+//  in Delphi XE2 on Windows when you supply fully qualified file name
+//  - for example from a history datastore - it both fails to open that dir
+//  and puts the fully-qualified looong name into the dialog window.
+//  Both VERY annoying and misleading inexperienced users.
+       if
+       {$IFDEF Windows}
+         SameText(
+       {$ELSE}
+         SameStr(
+       {$ENDIF}
+            ExcludeTrailingPathDelimiter(dlg.InitialDir), FDir)
+          then dlg.FileName := FName
+          else dlg.FileName := AFileName;
+    end;
+    if AFilter > '' then begin
+       dlg.Filter := AFilter;
+       dlg.FilterIndex := 0;
+
+       // if filename was empty, but DefaultExt was not
+       //   - this would make a ".ext" string.
+       if FExt = '' then
+          FName := FName + NormExt;
+
+       masks := StrUtils.SplitString( AFilter, '|');
+       mi := 0; i := 0;
+       for m in masks do begin
+         Inc(i);
+         if Odd(i) then
+            Continue; // mask's name, not formula
+         if
+         {$IFDEF Windows}
+           MatchesWindowsMaskList(
+         {$ELSE}
+           MatchesMaskList(
+         {$ENDIF}
+             FName, m) then
+         begin
+           Inc(mi);
+           dlg.FilterIndex := mi;
+           Break;
+         end;
+         Inc(mi);
+       end;
+    end;
+
+    Result := dlg.Execute;
+    if Result then
+       AFileName := dlg.FileName;
+  finally
+    dlg.Destroy;
+  end;
+end;
 
 class procedure TSaveDialog.WSRegisterClass;
 begin
@@ -490,6 +590,11 @@ end;
 function TSaveDialog.DefaultTitle: string;
 begin
   Result:=rsfdFileSaveAs;
+end;
+
+class function TSaveDialog.DefaultPromptOptions: TOpenOptions;
+begin
+  Result := [ofPathMustExist, ofOverwritePrompt, ofNoReadOnlyReturn, ofEnableIncludeNotify];
 end;
 
 {******************************************************************************

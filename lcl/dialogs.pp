@@ -232,12 +232,15 @@ type
     function CheckAllFiles: boolean; virtual;
     function DoExecute: boolean; override;
     function DefaultTitle: string; override;
+    class function DefaultPromptOptions: TOpenOptions; virtual;
   public
     constructor Create(TheOwner: TComponent); override;
     procedure DoCanClose(var CanClose: Boolean); override;
     procedure DoFolderChange; virtual;
     procedure DoSelectionChange; virtual;
     procedure IntfSetOption(const AOption: TOpenOption; const AValue: Boolean);
+    class function PromptForFileName(var AFileName: string; const AFilter: string = ''; const ADefaultExt: string = '';
+       const ATitle: string = ''; const AInitialDir: string = ''): Boolean;
   published
     property Options: TOpenOptions read FOptions write FOptions default DefaultOpenDialogOptions;
     property OnFolderChange: TNotifyEvent read FOnFolderChange write FOnFolderChange;
@@ -251,6 +254,7 @@ type
   protected
     class procedure WSRegisterClass; override;
     function DefaultTitle: string; override;
+    class function DefaultPromptOptions: TOpenOptions; override;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -781,6 +785,9 @@ function GetDialogIcon(idDiag: Integer): TCustomBitmap;
 function dbgs(Option: TOpenOption): string; overload;
 function dbgs(Options: TOpenOptions): string; overload;
 
+function PromptForFileName(var AFileName: string; const AFilter: string = ''; const ADefaultExt: string = '';
+   const ATitle: string = ''; const AInitialDir: string = ''; const SaveDialog: Boolean = False): Boolean;
+
 procedure Register;
 
 implementation
@@ -790,7 +797,7 @@ implementation
 { $R forms/replacedlgunit.lfm}
 
 uses 
-  Math, WSDialogs;
+  Masks, StrUtils, Math, WSDialogs;
 
 const
   //
