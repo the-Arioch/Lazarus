@@ -432,6 +432,8 @@ begin
     actViewMore.Enabled := False;
   end;
   ToolButtonPower.Enabled := Snap = nil;
+  if lvCallStack.Items.Count <= 0 then
+    actCopyAll.Enabled := False;
 end;
 
 function TCallStackDlg.GetSelectedSnapshot: TSnapshot;
@@ -505,22 +507,32 @@ procedure TCallStackDlg.CopyToClipBoard;
 var
   n: integer;
   Entry: TIdeCallStackEntry;
+  CStack: TIdeCallStack;
   S: String;
 begin
-  Clipboard.Clear;
-  
-  if (GetSelectedCallstack=nil) or (GetSelectedCallstack.Count=0) then exit;
-  
+  CStack := GetSelectedCallstack;
+  if (CStack=nil) or (CStack.Count=0) then begin
+    // ... maybe add 'Uses lcltypes', and then MB_ICONEXCLAMATION instead of zero
+    Application.MessageBox( 'Call stack is empty. Nothing to copy.', '', 0 );
+    exit;
+  end;
+
   S := '';
   // GetSelectedCallstack.PrepareRange();
-  for n:= 0 to GetSelectedCallstack.Count-1 do
+  for n := 0 to CStack.Count-1 do
   begin
-    Entry:=GetSelectedCallstack.Entries[n];
+    Entry:=CStack.Entries[n];
     if Entry <> nil
     then S := S + format('#%d %s at %s:%d', [n, GetFunction(Entry), Entry.Source, Entry.Line])
     else S := S + format('#%d ????', [n]);
     S := S + LineEnding;
   end;
+
+  // only destroy user data in clipboard now, when we compiled required data in
+  // S variable. Do it early - and we risk to get exceptions before, ending just
+  // destroying user data with nothing to give in return
+  Clipboard.Clear;
+  
   ClipBoard.AsText := S;
 end;
 

@@ -8,7 +8,6 @@ object CallStackDlg: TCallStackDlg
   ClientHeight = 246
   ClientWidth = 562
   OnCreate = FormCreate
-  LCLVersion = '1.9.0.0'
   Visible = True
   object lvCallStack: TListView
     Left = 0
@@ -23,7 +22,7 @@ object CallStackDlg: TCallStackDlg
       item
         AutoSize = True
         Caption = 'Index'
-        Width = 100
+        Width = 43
       end    
       item
         Caption = 'Source'
