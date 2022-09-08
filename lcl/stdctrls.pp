@@ -1181,6 +1181,7 @@ type
     function IsCheckedStored: boolean;
     procedure WMDefaultClicked(var Message: TLMessage); message LM_CLICKED;
   protected
+    FSkipOnChangeOnClick: boolean; // sadly required by TCustomCheckBox
     class procedure WSRegisterClass; override;
     function GetActionLinkClass: TControlActionLinkClass; override;
     function GetChecked: Boolean; virtual;
@@ -1354,6 +1355,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(TheOwner: TComponent); override;
+    class constructor CreateClass;
   public
     property Alignment: TLeftRight read GetAlignment write SetAlignment default taRightJustify;
     property AllowGrayed: Boolean read FAllowGrayed write FAllowGrayed default false;
@@ -1361,6 +1363,7 @@ type
     property ShortCut: TShortcut read FShortCut;
     property ShortCutKey2: TShortcut read FShortCutKey2;
     property OnChange;
+    class var VCL_OnClick_Emulation: boolean;
   end;
 
   // Normal checkbox

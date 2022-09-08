@@ -115,7 +115,18 @@ end;
 
 procedure TCustomCheckBox.Click;
 begin
-  // skip clicks by WM_MOUSEUP
+  // this implementaiton violates the LCL documentation for TControl.Click
+  // it skip clicks by WM_MOUSEUP if LM_CHANGED would simulate clicks too
+  // sequence observed: LM_CHHANGED, LM_CLICKED, WM_MOUSEUP handler (lastly)
+  // https://gitlab.com/freepascal.org/lazarus/lazarus/-/issues/39870
+  if not VCL_OnClick_Emulation then begin
+     FSkipOnChangeOnClick := True;
+     try
+       inherited Click;
+     finally
+       FSkipOnChangeOnClick := False;
+     end;
+  end;
 end;
 
 function TCustomCheckBox.RetrieveState: TCheckBoxState;
@@ -144,6 +155,12 @@ begin
   //todo: move to TButtonControl
   with GetControlClassDefaultSize do
     SetInitialBounds(0, 0, CX, CY);
+end;
+
+class constructor TCustomCheckBox.CreateClass;
+begin
+  VCL_OnClick_Emulation := True;
+  inherited;
 end;
 
 {------------------------------------------------------------------------------
@@ -276,8 +293,8 @@ end;
 procedure TCustomCheckBox.DoClickOnChange;
 begin
   Changed;
-  // emulate delphi OnClick behaviour (click will call OnChange)
-  if not ClicksDisabled then
+  // emulate delphi OnClick behaviour (inherited .Click will call DoOnChange)
+  if VCL_OnClick_Emulation and not ClicksDisabled then
     inherited Click
   else
     DoOnChange;
