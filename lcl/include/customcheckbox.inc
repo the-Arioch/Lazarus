@@ -99,7 +99,13 @@ end;
 
 procedure TCustomCheckBox.Click;
 begin
-  // skip clicks by WM_MOUSEUP
+  if VCL_OnClick_Emulation then Exit;
+  FSkipOnChangeOnClick := True;
+  try
+    inherited Click;
+  finally
+    FSkipOnChangeOnClick := False;
+  end;
 end;
 
 function TCustomCheckBox.RetrieveState: TCheckBoxState;
@@ -114,13 +120,12 @@ begin
   end;
 end;
 
-{------------------------------------------------------------------------------
-  Method: TCustomCheckBox.Create
-  Params:  TheOwner: the owner of the class
-  Returns: Nothing
+class constructor TCustomCheckBox.CreateClass;
+begin
+  VCL_OnClick_Emulation := True;
+  inherited;
+end;
 
-  Constructor for custom checkbox.
- ------------------------------------------------------------------------------}
 constructor TCustomCheckBox.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
@@ -288,8 +293,8 @@ end;
 procedure TCustomCheckBox.DoClickOnChange;
 begin
   Changed;
-  // emulate delphi OnClick behaviour (click will call OnChange)
-  if not ClicksDisabled then
+  // emulate delphi OnClick behaviour (inherited .Click will call DoOnChange)
+  if VCL_OnClick_Emulation and not ClicksDisabled then
     inherited Click
   else
     DoOnChange;
