@@ -234,9 +234,10 @@ begin
 end;
 
 
+type _hackdlg = class of TOpenDialog; // code helper sucks
 function PromptForFileName(var AFileName: string; const AFilter: string = ''; const ADefaultExt: string = '';
    const ATitle: string = ''; const AInitialDir: string = ''; const SaveDialog: Boolean = False): Boolean;
-var dlg: class of TOpenDialog;
+var dlg: _hackdlg; // class of TOpenDialog;
 begin
   if SaveDialog
      then dlg := TSaveDialog
