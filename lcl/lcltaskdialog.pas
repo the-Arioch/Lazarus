@@ -925,6 +925,7 @@ begin
     if Info<>'' then
       // no information collapse/expand yet: it's always expanded
       Dialog.Form.Element[tdeExpandedInfo] := AddLabel(Info, false);
+
     // add radio buttons
     if Radios<>'' then
     begin
@@ -960,6 +961,7 @@ begin
         Free;
       end;
     end;
+
     // add command links buttons
     if (tdfUseCommandLinks in aFlags) and (Buttons<>'') then
       with TStringList.Create do
@@ -1011,6 +1013,7 @@ begin
       finally
         Free;
       end;
+
     // add selection list or query editor
     if Selection<>'' then begin
       List := TStringListUTF8Fast.Create;
