@@ -1586,6 +1586,9 @@ procedure TDateEdit.ButtonClick;//or onClick
 var
   PopupOrigin: TPoint;
   ADate: TDateTime;
+  {$IFDEF WINDOWS}
+  CalendarMinDate,CalendarMaxDate: integer;
+  {$ENDIF}
 begin
   inherited ButtonClick;
 
@@ -1593,6 +1596,24 @@ begin
   ADate := GetDate;
   if ADate = NullDate then
     ADate := SysUtils.Date;
+  {$ifdef WINDOWS} // temporarily copied form TCustomCalendar, needs a proper fix
+  CalendarMinDate:=-53787;// 14 sep 1752, start of Gregorian calendar in England
+  CalendarMaxDate:=trunc(MaxDateTime);
+  if (ADate < CalendarMindate) then
+  begin
+    if FDefaultToday then
+      ADate := SysUtils.Date
+    else
+      ADate := CalendarMinDate
+  end
+  else if (ADate > CalendarMaxDate) then
+  begin
+    if FDefaultToday then
+      ADate := SysUtils.Date
+    else
+      ADate := CalendarMaxDate;
+  end;
+  {$endif}
   ShowCalendarPopup(PopupOrigin, ADate, CalendarDisplaySettings,
                     @CalendarPopupReturnDate, @CalendarPopupShowHide, self);
   //Do this after the dialog, otherwise it just looks silly
@@ -1685,10 +1706,12 @@ end;
 
 procedure TDateEdit.Loaded;
 begin
-  inherited Loaded;
   //Forces a valid Text in the control
   if not (csDesigning in ComponentState) then
     SetDate(FDate);
+  //avoid OnChange (regression introduced by #8ce29506c500e46d65b9a067bf446fd91224e6c0, happens when DirectInput=True and DefaultToday=True)
+  //the FEdit's OnChange is only forwarded once the whole component has been loaded, so call inherited after setting the text, not before
+  inherited Loaded;
 end;
 
 Function ParseDate(S : String; Order : TDateOrder; Def: TDateTime) : TDateTime;
