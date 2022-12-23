@@ -3962,6 +3962,7 @@ begin
     Result:=mrAbort;
     exit;
   end;
+  if nil = Project1 then Exit;
   SaveEditorChangesToCodeCache(nil);
   //DebugLn('SaveProject A SaveAs=',dbgs(sfSaveAs in Flags),' SaveToTestDir=',dbgs(sfSaveToTestDir in Flags),' ProjectInfoFile=',Project1.ProjectInfoFile);
   Result:=MainIDE.DoCheckFilesOnDisk(true);
@@ -7902,8 +7903,9 @@ begin
   Result:=false;
   //debugln(['SaveEditorChangesToCodeCache ']);
   if AEditor = nil then begin
-    for i:=0 to SourceEditorManager.SourceEditorCount - 1 do
-      SaveChanges(SourceEditorManager.SourceEditors[i]);
+    if SourceEditorManager <> nil then
+      for i:=0 to SourceEditorManager.SourceEditorCount - 1 do
+        SaveChanges(SourceEditorManager.SourceEditors[i]);
   end else begin
     SaveChanges(AEditor);
   end;

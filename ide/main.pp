@@ -5728,8 +5728,8 @@ begin
   end;
   SaveEnvironment(true);
   SaveIncludeLinks;
-  PkgBoss.SaveSettings;
-  InputHistories.Save;
+  if nil <> PkgBoss then PkgBoss.SaveSettings;
+  if nil <> InputHistories then InputHistories.Save;
   if CurResult=mrAbort then exit(mrAbort);
   if CurResult<>mrOk then Result:=mrCancel;
   CurResult:=DoCallModalFunctionHandler(lihtSavedAll);
