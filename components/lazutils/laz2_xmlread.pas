@@ -1647,10 +1647,10 @@ begin
 
   FNsAttHash := TDblHashArray.Create;
   SetLength(FWorkAtts, 16);
-  FStdPrefix_xml := FNSHelper.GetPrefix(@PrefixDefault, 3);
-  FStdPrefix_xmlns := FNSHelper.GetPrefix(@PrefixDefault, 5);
+  FStdPrefix_xml := FNSHelper.GetPrefix(@PrefixDefault[Low(PrefixDefault)], 3);
+  FStdPrefix_xmlns := FNSHelper.GetPrefix(@PrefixDefault[Low(PrefixDefault)], 5);
   // Set char rules to XML 1.0
-  FNamePages := @NamePages;
+  FNamePages := pointer(@NamePages);
   SetLength(FValidator, 16);
 end;
 

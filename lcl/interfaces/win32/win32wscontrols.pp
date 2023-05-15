@@ -180,7 +180,7 @@ var
   lhFont: HFONT;
   AErrorCode: Cardinal;
   NCCreateParams: TNCCreateParams;
-  WindowClassW, DummyClassW: WndClassW;
+  WindowClassW, DummyClassW: Windows.WndClassW;
 begin
   NCCreateParams.DefWndProc := nil;
   NCCreateParams.WinControl := AWinControl;
@@ -199,7 +199,7 @@ begin
           begin
             with WindowClassW do
             begin
-              LPFnWndProc := SubClassWndProc;
+              pointer(LPFnWndProc) := SubClassWndProc;
               hInstance := System.HInstance;
               lpszClassName := PWideChar(WideString(pSubClassName));
             end;

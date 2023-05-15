@@ -916,7 +916,7 @@ begin
 
   carc := curArc;
   maxArc := length(Arcs)-cArc;
-  base := @Arcs[cArc];
+  base := pointer(@Arcs[cArc]);
   y1   := base^[2].y;
   y2   := base^[0].y;
 
@@ -979,7 +979,7 @@ begin
           begin
             Split_Bezier( base );
             inc( cArc, 2 );
-            base := @base^[2];
+            base := pointer(@base^[2]);
           end
         else
           begin
@@ -988,7 +988,7 @@ begin
                                       e - y1,
                                       y2 - y1 ) );
             dec( cArc, 2 );
-            base := @Arcs[cArc];
+            base := pointer(@Arcs[cArc]);
             inc( e, Precision );
           end;
       end
@@ -1001,7 +1001,7 @@ begin
           inc( e, Precision );
         end;
         dec( cArc, 2 );
-        base := @Arcs[cArc];
+        base := pointer(@Arcs[cArc]);
       end
   end;
 
@@ -1031,7 +1031,7 @@ var
   _fresh : Boolean;
 begin
   _fresh := fresh;
-  base   := @Arcs[curArc];
+  base   := pointer(@Arcs[curArc]);
 
   base^[0].y := -base^[0].y;
   base^[1].y := -base^[1].y;
@@ -1167,7 +1167,7 @@ begin
 
       GoingUnknown : if curArc + 2 < length(arcs) then
                     begin
-                      Split_Bezier( @Arcs[curArc] );
+                      Split_Bezier( pointer(@Arcs[curArc]) );
                       inc( curArc, 2 );
                     end else
                       raise exception.Create('Bezier overflow');
