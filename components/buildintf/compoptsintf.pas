@@ -194,7 +194,7 @@ type
     procedure SetSmartLinkUnit(const AValue: Boolean);
     procedure SetStackChecks(const AValue: Boolean);
     procedure SetStackSize(const AValue: Integer);
-    procedure SetStaticKeyword(const AValue: Boolean);
+    procedure SetPointerTypeCheck(const AValue: Boolean);
     procedure SetStopAfterErrCount(const AValue: integer);
     procedure SetStripSymbols(const AValue: Boolean);
     procedure SetSyntaxMode(const AValue: string);
@@ -231,7 +231,7 @@ type
     fCPPInline: Boolean;
     fCMacros: Boolean;
     fInitConst: Boolean;
-    fStaticKeyword: Boolean;
+    fPointerTypeCheck: Boolean;
     // Code generation:
     fSmartLinkUnit: Boolean;
     fRelocatableUnit: Boolean;
@@ -395,7 +395,7 @@ type
     property CPPInline: Boolean read fCPPInline write SetCPPInline;
     property CStyleMacros: Boolean read fCMacros write SetCMacros;
     property InitConstructor: Boolean read fInitConst write SetInitConst;
-    property StaticKeyword: Boolean read fStaticKeyword write SetStaticKeyword;
+    property PointerTypeCheck: Boolean read fPointerTypeCheck write SetPointerTypeCheck;
 
     // code generation:
     property IOChecks: Boolean read fIOChecks write SetIOChecks;
@@ -834,10 +834,10 @@ begin
   IncreaseChangeStamp;
 end;
 
-procedure TLazCompilerOptions.SetStaticKeyword(const AValue: Boolean);
+procedure TLazCompilerOptions.SetPointerTypeCheck(const AValue: Boolean);
 begin
-  if fStaticKeyword=AValue then exit;
-  fStaticKeyword:=AValue;
+  if fPointerTypeCheck=AValue then exit;
+  fPointerTypeCheck:=AValue;
   IncreaseChangeStamp;
 end;
 
