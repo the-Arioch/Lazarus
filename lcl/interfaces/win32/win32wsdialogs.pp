@@ -1014,7 +1014,7 @@ begin
         debugln(['TWin32WSOpenDialog.ShowModal before ProcessFileDialogResults']);
         {$endif}
         ProcessFileDialogResult(TOpenDialog(ACommonDialog),
-          GetOpenFileNameW(LPOPENFILENAME(ACommonDialog.Handle)));
+          GetOpenFileNameW(LPOPENFILENAMEW(ACommonDialog.Handle)));
         {$ifdef DebugCommonDialogEvents}
         debugln(['TWin32WSOpenDialog.ShowModal after ProcessFileDialogResults, UserChoice=',ModalResultStr[TOpenDialog(ACommonDialog).UserChoice]]);
         {$endif}
@@ -1091,7 +1091,7 @@ begin
       else
       begin
         ProcessFileDialogResult(TOpenDialog(ACommonDialog),
-          GetSaveFileNameW(LPOPENFILENAME(ACommonDialog.Handle)));
+          GetSaveFileNameW(LPOPENFILENAMEW(ACommonDialog.Handle)));
       end;
     finally
       SetCurrentDirUTF8(lOldWorkingDir);
